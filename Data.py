@@ -54,11 +54,25 @@ def upcomingMatchesData(upcomingMatches):
             else:
                 enemy = td[1].find_all("div", class_="team-flex")[1].find_all("a")[1].text
             
-            remaining = datetime.strptime(date, dateformat) - now
+            if (len(date) == 10):
+                remaining = datetime.strptime(date, dateformat) - now
+                remaining = str(remaining.days)
+                timeformat = " days"
+            else:
+                dateHour = int(date.split(":")[0])
+                nowHour = int(datetime.now().strftime("%H"))
+                isDateToday = dateHour > nowHour
+
+                if isDateToday:
+                    remaining = dateHour - nowHour
+                else:
+                    remaining = str(24 - nowHour + dateHour)
+                
+                timeformat = " hours"
 
             upcomingMatches.append({
                 "date": date,
-                "remaining": "in " + str(remaining.days) + " days",
+                "remaining": remaining + timeformat,
                 "enemy": enemy,
             })
 
