@@ -72,7 +72,7 @@ def upcomingMatchesData(upcomingMatches):
 
             upcomingMatches.append({
                 "date": date,
-                "remaining": remaining + timeformat,
+                "remaining": str(remaining) + timeformat,
                 "enemy": enemy,
             })
 
