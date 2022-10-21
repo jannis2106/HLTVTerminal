@@ -2,6 +2,8 @@ from datetime import datetime
 from bs4 import BeautifulSoup
 import requests
 
+isUpcomingMatchesAvailable = False
+
 dateformat = "%d/%m/%Y"
 now = datetime.now()
 
@@ -36,10 +38,16 @@ def matchesPageData():
 
 def upcomingMatchesData(upcomingMatches):
     matchesBox = doc_matches.find("div", id="matchesBox")
-    previousMatchesTableBodys = matchesBox.find_all("table")[0].find_all("tbody")
+    isUpcomingMatchesAvailable = True if matchesBox.find_all("table").__len__ == 1 else False
+
+    if not isUpcomingMatchesAvailable:
+        # upcomingMatches.append("Test HELLLLOOOO")
+        return
+
+    upcomingMatchesTableBodys = matchesBox.find_all("table")[0].find_all("tbody")
     
     count = 0
-    for body in previousMatchesTableBodys:
+    for body in upcomingMatchesTableBodys:
         if count == 5: return
 
         trs = body.find_all("tr", class_="team-row")
@@ -81,7 +89,9 @@ def upcomingMatchesData(upcomingMatches):
 
 def previousMatchesData(previousMatches):
     matchesBox = doc_matches.find("div", id="matchesBox")
-    previousMatchesTableBodys = matchesBox.find_all("table")[1].find_all("tbody")
+    # if upcoming matches are displayed, provious matches are in the second table. otherwise in the first
+    prevMatchesIndex = 1 if matchesBox.find_all("table").__len__ == 1 else 0
+    previousMatchesTableBodys = matchesBox.find_all("table")[prevMatchesIndex].find_all("tbody")
    
     countX = 0
     for body in previousMatchesTableBodys:
