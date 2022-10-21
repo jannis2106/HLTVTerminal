@@ -1,11 +1,12 @@
 import json
+import os
 from rich.panel import Panel
 from rich.layout import Layout
 from rich.table import Table
 from rich.console import Console
 from rich import box
 
-with open("data.json", "r", encoding="utf-8") as f:
+with open(os.path.expanduser("~") + "/.config/hltvdata.json", "r", encoding="utf-8") as f:
     team = json.loads(f.read())
 
 upcomingMatches = team["upcomingMatches"]
@@ -36,7 +37,6 @@ layout = Layout()
 # Upcoming Matches
 upcomingMatchesTable = Table(box=box.SIMPLE_HEAD)
 def genUpcomingMatchesTable():
-
     upcomingMatchesTable.add_column("Date")
     upcomingMatchesTable.add_column("Time Remaining")
     upcomingMatchesTable.add_column("Enemy")
@@ -47,17 +47,26 @@ def genUpcomingMatchesTable():
             game["enemy"]
         )
 
+
+def colorScore(win, score):
+    if win:
+        return "[green]" + score + "[/green]"
+    else:
+        return "[red]" + score + "[/red]" 
+
+
 # Previous Matches
 previousMatchesTable = Table(box=box.SIMPLE_HEAD)
 def genPreviousMatchesTable():
-
     previousMatchesTable.add_column("Date")
     previousMatchesTable.add_column("Game Score")
     previousMatchesTable.add_column("Enemy")
     for game in previousMatches:
+        scores = game["score"].split(":")
+        win = True if int(scores[0]) > int(scores[1]) else False
         previousMatchesTable.add_row(
             game["date"],
-            game["score"],
+            colorScore(win, game["score"]),
             game["enemy"]
         )
 
@@ -89,14 +98,14 @@ prevMatchesPanel = Panel(
 # Main Layout
 layout.split_row(
     Layout(logoPanel, size=34),
-    Layout(name="right", height=25)
+    Layout(name="right")
 )
 
 # Right Layout
 layout["right"].split_column(
     Layout(upperPanel, name="upper"),
     Layout(
-        name="matches"
+        name="matches",
     )
 )
 layout["upper"].size = 3
