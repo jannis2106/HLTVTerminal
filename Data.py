@@ -41,7 +41,6 @@ def upcomingMatchesData(upcomingMatches):
     isUpcomingMatchesAvailable = True if matchesBox.find_all("table").__len__ == 1 else False
 
     if not isUpcomingMatchesAvailable:
-        # upcomingMatches.append("Test HELLLLOOOO")
         return
 
     upcomingMatchesTableBodys = matchesBox.find_all("table")[0].find_all("tbody")
