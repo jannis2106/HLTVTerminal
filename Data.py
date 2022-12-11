@@ -38,7 +38,7 @@ def matchesPageData():
 
 def upcomingMatchesData(upcomingMatches):
     matchesBox = doc_matches.find("div", id="matchesBox")
-    isUpcomingMatchesAvailable = True if matchesBox.find_all("table").__len__ == 1 else False
+    isUpcomingMatchesAvailable = True if len(matchesBox.find_all("table")) == 2 else False
 
     if not isUpcomingMatchesAvailable:
         return
@@ -60,6 +60,8 @@ def upcomingMatchesData(upcomingMatches):
                 enemy = td[1].find_all("div", class_="team-flex")[1].find("span", class_="team-name").text
             else:
                 enemy = td[1].find_all("div", class_="team-flex")[1].find_all("a")[1].text
+
+            url = td[1].find_all("div", class_="team-flex")[1].find("span", class_="team-logo-container").find("img")["src"]
             
             if (len(date) == 10):
                 remaining = datetime.strptime(date, dateformat) - now
@@ -81,6 +83,7 @@ def upcomingMatchesData(upcomingMatches):
                 "date": date,
                 "remaining": str(remaining) + timeformat,
                 "enemy": enemy,
+                "image-url": url
             })
 
             count += 1
@@ -89,7 +92,7 @@ def upcomingMatchesData(upcomingMatches):
 def previousMatchesData(previousMatches):
     matchesBox = doc_matches.find("div", id="matchesBox")
     # if upcoming matches are displayed, provious matches are in the second table. otherwise in the first
-    prevMatchesIndex = 1 if matchesBox.find_all("table").__len__ == 1 else 0
+    prevMatchesIndex = 1 if len(matchesBox.find_all("table")) == 2 else 0
     previousMatchesTableBodys = matchesBox.find_all("table")[prevMatchesIndex].find_all("tbody")
    
     countX = 0
@@ -106,11 +109,13 @@ def previousMatchesData(previousMatches):
             scoreCell = td[1].find("div", class_="score-cell").find_all("span")
             score = scoreCell[0].text + ":" + scoreCell[2].text
             enemy = td[1].find_all("div", class_="team-flex")[1].find_all("a")[1].text
+            url = td[1].find_all("div", class_="team-flex")[1].find("span", class_="team-logo-container").find("img")["src"]
 
             previousMatches.append({
                 "date": date,
                 "score": score,
                 "enemy": enemy,
+                "image-url": url
             })
 
             countX += 1
