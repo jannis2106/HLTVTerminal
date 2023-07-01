@@ -5,9 +5,16 @@ from rich.layout import Layout
 from rich.table import Table
 from rich.console import Console
 from rich import box
+import subprocess
 
 with open(os.path.expanduser("~") + "/.config/hltvdata.json", "r", encoding="utf-8") as f:
     team = json.loads(f.read())
+
+def printImg(name):
+    # img = subprocess.Popen(("curl", "-N", url), stdout=subprocess.PIPE)
+    if (os.ctermid() == "kitty"):
+        subprocess.run(['kitty', 'icat', os.path.expanduser("~") + "/.config/HLTVTerminal/images/" + name + ".png"])
+    # img.wait()
 
 upcomingMatches = team["upcomingMatches"]
 previousMatches = team["previousMatches"]
@@ -46,6 +53,7 @@ def genUpcomingMatchesTable():
             game["remaining"],
             game["enemy"]
         )
+        printImg(game["enemy"])
 
 
 def colorScore(win, score):
@@ -69,6 +77,7 @@ def genPreviousMatchesTable():
             colorScore(win, game["score"]),
             game["enemy"]
         )
+        printImg(game["enemy"])
 
 # PANELS
 # Left Panel
@@ -80,7 +89,7 @@ logoPanel = Panel(
 
 # Upper Panel
 upperPanel = Panel(
-    "Ranking: [bold]" + team["ranking"] + "[/bold]    Winstreak: [bold]" + team["winstreak"] + "[/bold]    Winrate: [bold]" + team["winrate"] + "[/bold]    Top 30: [bold]" + team["top30"] + "[/bold]    average age: [bold]" + team["avgage"] + "[/bold]",
+    "Ranking: [bold]" + team["ranking"] + "[/bold]    Winstreak: [bold]" + team["winstreak"] + "[/bold]    Winrate: [bold]" + team["winrate"] + "[/bold]    Top 30: [bold]" + team["top30"] + "[/bold]    coach: [bold]" + team["coach"] + "[/bold]",
 )
 
 #Matches Panels

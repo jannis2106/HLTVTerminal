@@ -1,43 +1,42 @@
 from datetime import datetime
 from bs4 import BeautifulSoup
-import requests
+from selenium import webdriver
+from selenium.webdriver.common.by import By
 
 isUpcomingMatchesAvailable = False
-
 dateformat = "%d/%m/%Y"
 now = datetime.now()
-
 url_main = "https://www.hltv.org/team/5973/liquid#tab-infoBox"
-res_main = requests.get(url_main)
 
-doc_main = BeautifulSoup(res_main.text, "html.parser")
-def mainPageData():
-    profileTeamStats = doc_main.find_all("div", class_="profile-team-stat")
+def initDriver(url):
+    options = webdriver.ChromeOptions()
+    options.add_argument("--headless=new")
+    driver = webdriver.Chrome(options=options)
+    driver.get(url)
+    html = driver.page_source
 
-    name = doc_main.find("h1", class_="profile-team-name").text
+    return html
+
+def fetchMainPageDate(doc):
+    profileTeamStats = doc.find_all("div", class_="profile-team-stat")
+
+    name = doc.find("h1", class_="profile-team-name").text
     ranking = profileTeamStats[0].find("span").find("a").text
     top30 = profileTeamStats[1].find("span").text
-    avgage = profileTeamStats[2].find("span").text
+    coach = profileTeamStats[3].find("span").text
 
-    return [name, ranking, top30, avgage]
+    return [name, ranking, top30, coach]
 
-
-url_matches = url_main + "#tab-matchesBox"
-res_matches = requests.get(url_matches)
-doc_matches = BeautifulSoup(res_matches.text, "html.parser")
-
-
-def matchesPageData():
-    matchesBox = doc_matches.find("div", id="matchesBox")
+def fetchMatchesPageData(doc):
+    matchesBox = doc.find("div", id="matchesBox")
 
     winstreak = matchesBox.find("div", class_="highlighted-stats-box").find("div", class_="highlighted-stat").find("div").text
     winrate = matchesBox.find("div", class_="highlighted-stats-box").find_all("div", class_="highlighted-stat")[1].find("div").text
 
     return [winstreak, winrate]
 
-
-def upcomingMatchesData(upcomingMatches):
-    matchesBox = doc_matches.find("div", id="matchesBox")
+def fetchUpcomingMatchesData(doc):
+    matchesBox = doc.find("div", id="matchesBox")
     isUpcomingMatchesAvailable = True if len(matchesBox.find_all("table")) == 2 else False
 
     if not isUpcomingMatchesAvailable:
@@ -45,6 +44,8 @@ def upcomingMatchesData(upcomingMatches):
 
     upcomingMatchesTableBodys = matchesBox.find_all("table")[0].find_all("tbody")
     
+    upcomingMatches = []
+
     count = 0
     for body in upcomingMatchesTableBodys:
         if count == 5: return
@@ -88,20 +89,23 @@ def upcomingMatchesData(upcomingMatches):
 
             count += 1
 
+    return upcomingMatches
 
-def previousMatchesData(previousMatches):
-    matchesBox = doc_matches.find("div", id="matchesBox")
+def fetchPreviousMatchesData(doc):
+    matchesBox = doc.find("div", id="matchesBox")
     # if upcoming matches are displayed, provious matches are in the second table. otherwise in the first
     prevMatchesIndex = 1 if len(matchesBox.find_all("table")) == 2 else 0
     previousMatchesTableBodys = matchesBox.find_all("table")[prevMatchesIndex].find_all("tbody")
-   
+
+    previousMatches = []
+
     countX = 0
     for body in previousMatchesTableBodys:
-        if countX == 5: return
+        if countX == 5: break
 
         trs = body.find_all("tr", class_="team-row")
         for tr in trs:
-            if countX == 5: return
+            if countX == 5: break
 
             td = tr.find_all("td")
 
@@ -119,3 +123,21 @@ def previousMatchesData(previousMatches):
             })
 
             countX += 1
+
+    return previousMatches
+
+def mainPageData():
+    html = initDriver(url_main)
+    doc = BeautifulSoup(html, "html.parser")
+
+    return fetchMainPageDate(doc)
+
+def matchesPageData():
+    html = initDriver(url_main + "#tab-matchesBox")
+    doc = BeautifulSoup(html, "html.parser")
+    
+    [winstreak, winrate] = fetchMatchesPageData(doc)
+    upcomingMatches = fetchUpcomingMatchesData(doc)
+    previousMatches = fetchPreviousMatchesData(doc)
+
+    return [winstreak, winrate, upcomingMatches, previousMatches]
