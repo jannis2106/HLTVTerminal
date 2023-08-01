@@ -47,13 +47,15 @@ def genUpcomingMatchesTable():
     upcomingMatchesTable.add_column("Date")
     upcomingMatchesTable.add_column("Time Remaining")
     upcomingMatchesTable.add_column("Enemy")
-    for game in upcomingMatches:
-        upcomingMatchesTable.add_row(
-            game["date"],
-            game["remaining"],
-            game["enemy"]
-        )
-        printImg(game["enemy"])
+
+    if upcomingMatches is not None:
+        for game in upcomingMatches:
+            upcomingMatchesTable.add_row(
+                game["date"],
+                game["remaining"],
+                game["enemy"]
+            )
+            printImg(game["enemy"])
 
 
 def colorScore(win, score):

@@ -14,6 +14,7 @@ def initDriver(url):
     driver = webdriver.Chrome(options=options)
     driver.get(url)
     html = driver.page_source
+    driver.quit()
 
     return html
 
