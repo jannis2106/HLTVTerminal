@@ -1,7 +1,6 @@
 from datetime import datetime
 from bs4 import BeautifulSoup
 from selenium import webdriver
-from selenium.webdriver.common.by import By
 
 isUpcomingMatchesAvailable = False
 dateformat = "%d/%m/%Y"
@@ -11,7 +10,8 @@ url_main = "https://www.hltv.org/team/5973/liquid#tab-infoBox"
 def initDriver(url):
     options = webdriver.ChromeOptions()
     options.add_argument("--headless=new")
-    driver = webdriver.Chrome(options=options)
+    service = webdriver.ChromeService(executable_path="/usr/bin/chromedriver")
+    driver = webdriver.Chrome(options=options, service=service)
     driver.get(url)
     html = driver.page_source
     driver.quit()
