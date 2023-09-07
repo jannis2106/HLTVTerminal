@@ -67,7 +67,7 @@ def fetchUpcomingMatchesData(doc):
             
             if (len(date) == 10):
                 remaining = datetime.strptime(date, dateformat) - now
-                remaining = str(remaining.days)
+                remaining = str(remaining.days + 1)
                 timeformat = " days"
             else:
                 dateHour = int(date.split(":")[0])
