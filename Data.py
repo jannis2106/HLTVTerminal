@@ -8,17 +8,23 @@ now = datetime.now()
 url_main = "https://www.hltv.org/team/5973/liquid#tab-infoBox"
 
 def initDriver(url):
+    print("intializing new driver")
     options = webdriver.ChromeOptions()
     options.add_argument("--headless=new")
     service = webdriver.ChromeService(executable_path="/usr/bin/chromedriver")
     driver = webdriver.Chrome(options=options, service=service)
+
+    print("fetching data from url: " + url)
+
     driver.get(url)
     html = driver.page_source
     driver.quit()
-
+    
+    print("returning html")
     return html
 
 def fetchMainPageDate(doc):
+    print("getting the main team data")
     profileTeamStats = doc.find_all("div", class_="profile-team-stat")
 
     name = doc.find("h1", class_="profile-team-name").text
@@ -29,6 +35,7 @@ def fetchMainPageDate(doc):
     return [name, ranking, top30, coach]
 
 def fetchMatchesPageData(doc):
+    print("getting the matches data")
     matchesBox = doc.find("div", id="matchesBox")
 
     winstreak = matchesBox.find("div", class_="highlighted-stats-box").find("div", class_="highlighted-stat").find("div").text
@@ -37,6 +44,7 @@ def fetchMatchesPageData(doc):
     return [winstreak, winrate]
 
 def fetchUpcomingMatchesData(doc):
+    print("getting the upcoming matches")
     matchesBox = doc.find("div", id="matchesBox")
     isUpcomingMatchesAvailable = True if len(matchesBox.find_all("table")) == 2 else False
 
@@ -68,7 +76,7 @@ def fetchUpcomingMatchesData(doc):
             if (len(date) == 10):
                 remaining = datetime.strptime(date, dateformat) - now
                 # some problems here with the remaining days, displaying inconsistently
-                remaining = str(remaining.days)
+                remaining = str(remaining.days + 1)
                 timeformat = " days"
             else:
                 dateHour = int(date.split(":")[0])
@@ -94,6 +102,8 @@ def fetchUpcomingMatchesData(doc):
     return upcomingMatches
 
 def fetchPreviousMatchesData(doc):
+    print("getting the previous matches")
+
     matchesBox = doc.find("div", id="matchesBox")
     # if upcoming matches are displayed, provious matches are in the second table. otherwise in the first
     prevMatchesIndex = 1 if len(matchesBox.find_all("table")) == 2 else 0
